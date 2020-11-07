@@ -11,28 +11,18 @@ class QuotesSpider(scrapy.Spider):
     ]
 
     def parse(self, response):
-        print('*'*10)
-        print('\n\n\n')
-
-        title = response.xpath('//h1/a/text()').get()
-        print(f'Tille: {title}')
-        print('\n\n')
-
-        quotes=response.xpath('//span[@class="text" and @itemprop="text"]/text()').getall()
-        print('Quotes')
-        for quote in quotes:
-            print(f'- {quote}')
-        print('\n\n')
-
-        top_ten_tags = response.xpath('//div[contains(@class, "tags-box")]//span[@class="tag-item"]/a/text()').getall()
-        print('Top ten tags')
-        for tag in top_ten_tags:
-            print(f'- {tag}')
-        print('\n\n')
-
-
         
-        #print(response.status, response.headers)
-        print('\n\n')
-        print('*'*10)
+        title = response.xpath('//h1/a/text()').get()
+        quotes=response.xpath('//span[@class="text" and @itemprop="text"]/text()').getall()
+        top_ten_tags = response.xpath('//div[contains(@class, "tags-box")]//span[@class="tag-item"]/a/text()').getall()
+
+        yield {
+            'title': title,
+            'quotes': quotes,
+            'top_ten_tags': top_ten_tags
+        }
+       
+        
+
+
         
