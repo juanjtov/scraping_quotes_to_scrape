@@ -22,13 +22,21 @@ class QuotesSpider(scrapy.Spider):
     def parse_only_quotes(self, response, **kwargs):
         if kwargs:
             quotes = kwargs['quotes']
-        quotes.extend(response.xpath(
-            '//span[@class="text" and @itemprop="text"]/text()').getall())
+
+        next_quotes = response.xpath(
+            '//span[@class="text" and @itemprop="text"]/text()').getall()
+
+        if kwargs['quotes_number'] is not None:
+            quotes_number = kwargs['quotes_number']
+            next_quotes = next_quotes[:quotes_number]
+
+        quotes.extend(next_quotes)
 
         next_page_button_link = response.xpath(
             '//ul[@class="pager"]/li[@class="next"]/a/@href').get()
+
         if next_page_button_link:
-            yield response.follow(next_page_button_link, callback=self.parse_only_quotes, cb_kwargs={'quotes': quotes})
+            yield response.follow(next_page_button_link, callback=self.parse_only_quotes, cb_kwargs={'quotes': quotes, 'quotes_number': quotes_number})
 
         else:
             yield {
@@ -44,9 +52,14 @@ class QuotesSpider(scrapy.Spider):
             '//div[contains(@class, "tags-box")]//span[@class="tag-item"]/a/text()').getall()
 
         top = getattr(self, 'top', None)
+        quotes_number = getattr(self, 'quotes_number', None)
         if top:
             top = int(top)
             top_tags = top_tags[:top]
+
+        if quotes_number:
+            quotes_number = int(quotes_number)
+            quotes = quotes[:quotes_number]
 
         yield {
             'title': title,
@@ -56,4 +69,4 @@ class QuotesSpider(scrapy.Spider):
         next_page_button_link = response.xpath(
             '//ul[@class="pager"]/li[@class="next"]/a/@href').get()
         if next_page_button_link:
-            yield response.follow(next_page_button_link, callback=self.parse_only_quotes, cb_kwargs={'quotes': quotes})
+            yield response.follow(next_page_button_link, callback=self.parse_only_quotes, cb_kwargs={'quotes': quotes, 'quotes_number': quotes_number})
