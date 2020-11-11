@@ -51,10 +51,10 @@ class QuotesSpider(scrapy.Spider):
             yield response.follow(next_page_button_link, callback=self.parse_only_quotes, cb_kwargs={'quotes': quotes, 'quotes_number': quotes_number, 'authors': authors})
 
         else:
-            yield {
-                'quotes': quotes,
-                'authors': authors
-            }
+
+            for i in range(len(quotes)):
+                yield {'quote': quotes[i],
+                       'author': authors[i]}
 
     def parse(self, response):
 
